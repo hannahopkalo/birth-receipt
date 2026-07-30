@@ -1,638 +1,258 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="uk">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Birth Receipt — Oleksandr</title>
+  <meta name="description" content="A personal archive of 04.08.1994." />
+  <meta property="og:title" content="Birth Receipt — Oleksandr" />
+  <meta property="og:description" content="Для цього дня зберігся особливий запис." />
+  <meta name="theme-color" content="#050505" />
+  <style>
+    @font-face { font-family: Druk; src: url("fonts/DrukCyr-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+    @font-face { font-family: Songer; src: url("fonts/SONGER_SE_Bold.otf") format("opentype"); font-weight: 700; font-display: swap; }
+    @font-face { font-family: Nimbus; src: url("fonts/NimbusSanL-Reg.otf") format("opentype"); font-display: swap; }
+    @font-face { font-family: Novelist; src: url("fonts/Novelist-Ukr.otf") format("opentype"); font-display: swap; }
+
+    :root { --bg:#050505; --ink:#f2ede7; --dim:rgba(242,237,231,.55); --line:rgba(242,237,231,.18); --accent:#ff41c9; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; background:var(--bg); }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Nimbus,Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+    body.locked { overflow:hidden; }
+    a { color:inherit; }
+    button { font:inherit; }
+    ::selection { background:var(--accent); color:#000; }
+
+    .grain,.vignette { position:fixed; inset:0; pointer-events:none; z-index:50; }
+    .grain { opacity:.32; background:repeating-linear-gradient(180deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px); }
+    .vignette { background:radial-gradient(120% 80% at 50% 45%,transparent 35%,rgba(0,0,0,.8) 100%); }
+
+    .screen { min-height:100svh; padding:32px 24px; display:grid; place-items:center; position:relative; overflow:hidden; }
+    .opening { position:fixed; inset:0; z-index:100; background:#000; transition:opacity .8s ease,visibility .8s ease; }
+    .opening.hidden { opacity:0; visibility:hidden; }
+    .opening-inner { width:min(720px,100%); text-align:center; }
+    .eyebrow { font-family:Songer,sans-serif; font-size:10px; letter-spacing:.32em; text-transform:uppercase; color:var(--dim); }
+    .date { margin:26px 0 4px; font-family:Druk,sans-serif; font-size:clamp(64px,15vw,145px); line-height:.86; letter-spacing:-.03em; }
+    .name { font-family:Songer,sans-serif; font-size:clamp(16px,3vw,25px); letter-spacing:.24em; }
+    .opening-copy { margin:48px auto 30px; max-width:20ch; font-family:Novelist,serif; font-size:clamp(22px,4vw,32px); line-height:1.22; }
+    .hold { width:144px; height:144px; border:1px solid var(--line); border-radius:50%; background:transparent; color:var(--ink); cursor:pointer; position:relative; touch-action:none; user-select:none; }
+    .hold::before { content:""; position:absolute; inset:-1px; border-radius:50%; border:1px solid var(--ink); clip-path:inset(calc(100% - var(--progress,0%)) 0 0 0); }
+    .hold span { font-family:Songer,sans-serif; font-size:9px; letter-spacing:.18em; text-transform:uppercase; }
+
+    .returning { position:fixed; inset:0; z-index:90; display:grid; place-items:center; padding:24px; background:#000; opacity:0; visibility:hidden; transition:opacity .5s ease; }
+    .returning.show { opacity:1; visibility:visible; }
+    .returning-box { width:min(680px,100%); text-align:center; }
+    .returning h2 { margin:18px 0; font-family:Druk,sans-serif; font-size:clamp(46px,12vw,110px); line-height:.9; }
+    .returning p { margin:0 auto; max-width:20ch; font-family:Novelist,serif; font-size:clamp(21px,4vw,30px); line-height:1.25; }
+    .scan { height:1px; margin:38px auto 0; width:min(420px,80vw); background:linear-gradient(90deg,transparent,var(--ink),transparent); animation:scan 1.6s infinite ease-in-out; }
+
+    main { opacity:1; }
+    section { min-height:100svh; padding:96px 24px; display:flex; align-items:center; position:relative; border-top:1px solid rgba(242,237,231,.08); }
+    .wrap { width:min(1040px,100%); margin:0 auto; }
+    .hero { min-height:100svh; text-align:center; }
+    .hero .wrap { display:grid; place-items:center; }
+    .hero h1,.display { margin:14px 0 0; font-family:Druk,sans-serif; text-transform:uppercase; font-size:clamp(70px,15vw,170px); line-height:.82; letter-spacing:-.035em; }
+    .hero .sub { margin:28px auto 0; font-family:Novelist,serif; font-size:clamp(22px,4vw,34px); line-height:1.22; }
+    .cta { display:inline-flex; margin-top:38px; padding:15px 20px; border:1px solid var(--ink); text-decoration:none; font-family:Songer,sans-serif; font-size:9px; letter-spacing:.22em; text-transform:uppercase; transition:.2s; background:transparent; color:var(--ink); cursor:pointer; }
+    .cta:hover { background:var(--ink); color:#000; }
+
+    .receipt { width:min(470px,100%); margin:0 auto; padding:32px 26px; background:#eee9df; color:#111; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; box-shadow:0 40px 100px rgba(0,0,0,.45); }
+    .receipt-title { text-align:center; font-weight:700; letter-spacing:.12em; }
+    .dash { overflow:hidden; white-space:nowrap; margin:18px 0; }
+    .row { display:flex; justify-content:space-between; gap:18px; padding:5px 0; font-size:13px; }
+    .row span:last-child { text-align:right; font-weight:700; }
+    .receipt-note { margin-top:24px; text-align:center; line-height:1.5; }
+    .receipt-copy { margin:42px auto 0; text-align:center; max-width:28ch; font-family:Novelist,serif; font-size:clamp(22px,4vw,31px); line-height:1.25; }
+
+    .section-head { display:grid; grid-template-columns:1fr auto; gap:24px; align-items:end; padding-bottom:24px; border-bottom:1px solid var(--line); }
+    .section-head h2 { margin:8px 0 0; font-family:Druk,sans-serif; font-size:clamp(58px,12vw,132px); line-height:.84; text-transform:uppercase; letter-spacing:-.03em; }
+    .section-no { font-family:ui-monospace,monospace; color:var(--dim); }
+    .lead { max-width:28ch; margin:42px 0 0; font-family:Novelist,serif; font-size:clamp(23px,4vw,34px); line-height:1.25; }
+    .facts { margin-top:46px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border:1px solid var(--line); }
+    .fact { padding:20px; min-height:100px; border-right:1px solid var(--line); }
+    .fact:nth-child(even){ border-right:0; }
+    .fact-k { font-family:Songer,sans-serif; font-size:8px; letter-spacing:.22em; color:var(--dim); }
+    .fact-v { margin-top:12px; font-family:Songer,sans-serif; font-size:22px; }
+    .copy { margin-top:34px; max-width:35ch; font-family:Novelist,serif; font-size:clamp(21px,3.4vw,29px); line-height:1.35; }
+    .copy p { margin:0 0 22px; }
+
+    .moon { margin:54px 0 0; display:flex; align-items:center; gap:42px; flex-wrap:wrap; }
+    .moon-disc { width:min(260px,64vw); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 35% 30%,#efe9dd,#a49d93 55%,#4f4b46); box-shadow:inset -86px 0 55px -8px #000,0 0 80px rgba(242,237,231,.08); }
+    .moon-meta { flex:1; min-width:230px; }
+
+    .song-card,.movie-card { margin-top:48px; padding:30px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); display:grid; grid-template-columns:minmax(0,1fr) auto; gap:24px; align-items:end; }
+    .song-card h3,.movie-card h3 { margin:10px 0 4px; font-family:Druk,sans-serif; font-size:clamp(45px,9vw,94px); line-height:.9; text-transform:uppercase; }
+    .artist { color:var(--dim); font-size:18px; }
+    .link { border:1px solid var(--line); padding:13px 15px; text-decoration:none; font-family:Songer,sans-serif; font-size:8px; letter-spacing:.18em; text-transform:uppercase; white-space:nowrap; }
+    .link:hover { border-color:var(--ink); }
+    .list { margin-top:28px; border-top:1px solid var(--line); }
+    .list-row { display:flex; justify-content:space-between; gap:20px; padding:15px 0; border-bottom:1px solid rgba(242,237,231,.1); font-family:Songer,sans-serif; font-size:12px; letter-spacing:.05em; }
+
+    .world-stat { margin-top:54px; font-family:Druk,sans-serif; font-size:clamp(76px,18vw,190px); line-height:.78; letter-spacing:-.04em; }
+    .world-label { margin-top:18px; font-family:Songer,sans-serif; font-size:10px; letter-spacing:.28em; color:var(--dim); }
+    .time-grid { margin-top:50px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:var(--line); }
+    .time-box { background:#050505; padding:28px 22px; }
+    .time-box strong { display:block; font-family:Druk,sans-serif; font-size:clamp(42px,8vw,80px); line-height:.9; }
+    .time-box span { display:block; margin-top:12px; font-family:Songer,sans-serif; font-size:9px; letter-spacing:.2em; color:var(--dim); }
+
+    .arrival { text-align:center; }
+    .arrival .lead { margin-left:auto; margin-right:auto; }
+    .letter { margin:54px auto 0; max-width:660px; font-family:Novelist,serif; font-size:clamp(22px,3.8vw,31px); line-height:1.42; }
+    .letter p { margin:0 0 26px; }
+    .signature { margin-top:42px; font-family:Songer,sans-serif; font-size:11px; letter-spacing:.18em; }
+
+    .final { min-height:100svh; text-align:center; }
+    .final h2 { margin:16px auto 46px; max-width:11ch; font-family:Druk,sans-serif; font-size:clamp(58px,13vw,140px); line-height:.82; }
+    .final-actions { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:36px; }
+    .final-copy { margin:36px auto 0; max-width:28ch; font-family:Novelist,serif; font-size:clamp(21px,3vw,29px); line-height:1.3; }
+
+    .reveal { opacity:0; transform:translateY(22px); transition:opacity .8s ease,transform .8s cubic-bezier(.16,1,.3,1); }
+    .reveal.on { opacity:1; transform:none; }
+
+    @keyframes scan { 0%,100%{transform:scaleX(.25);opacity:.25}50%{transform:scaleX(1);opacity:1} }
+    @media(max-width:640px){
+      section{padding:78px 20px}.section-head{grid-template-columns:1fr}.section-no{display:none}.facts{grid-template-columns:1fr}.fact{border-right:0;border-bottom:1px solid var(--line)}.fact:last-child{border-bottom:0}.song-card,.movie-card{grid-template-columns:1fr}.link{justify-self:start}.time-grid{grid-template-columns:1fr}.row{font-size:12px}.receipt{padding:26px 18px}
+    }
+    @media print {
+      body * { visibility:hidden!important; }
+      #finalReceipt,#finalReceipt * { visibility:visible!important; }
+      #finalReceipt { position:absolute; left:50%; top:20px; transform:translateX(-50%); box-shadow:none; }
+      .grain,.vignette { display:none!important; }
+    }
+  </style>
 </head>
-<body>
-<x-dc>
-<helmet>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<style>
-@font-face { font-family: "Druk"; src: url("fonts/DrukCyr-Medium.ttf") format("truetype"); font-weight: 500; font-display: block; }
-@font-face { font-family: "Songer"; src: url("fonts/SONGER_SE_Bold.otf") format("opentype"); font-weight: 700; font-display: block; }
-@font-face { font-family: "Nimbus"; src: url("fonts/NimbusSanL-Reg.otf") format("opentype"); font-display: swap; }
-@font-face { font-family: "Novelist"; src: url("fonts/Novelist-Ukr.otf") format("opentype"); font-display: swap; }
-html, body { margin: 0; height: 100%; background: #000; color: #F2EDE7; -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
-body { font-family: Nimbus, system-ui, sans-serif; }
-a { color: #F2EDE7; text-decoration: none; border-bottom: 1px solid rgba(242,237,231,0.3); }
-a:hover { color: #FF41C9; border-bottom-color: rgba(255,65,201,0.5); }
-* { -webkit-tap-highlight-color: transparent; }
-@keyframes brPrint { from { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(-6px); } to { opacity: 1; clip-path: inset(0 0 -2% 0); transform: none; } }
-@keyframes brRise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
-@keyframes brIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes brBlink { 0%, 48% { opacity: 1; } 52%, 100% { opacity: 0; } }
-@keyframes brBreathe { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.85; } }
-@keyframes brTwinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
-@keyframes brScanline { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
-@keyframes brFlicker { 0%, 100% { opacity: 0.9; } 42% { opacity: 0.72; } 47% { opacity: 1; } 61% { opacity: 0.8; } }
-@keyframes brTitleIn { from { opacity: 0; letter-spacing: 0.28em; transform: scale(1.06); } to { opacity: 1; letter-spacing: -0.015em; transform: none; } }
-@keyframes brSeal { 0% { opacity: 0; transform: scale(3.4) rotate(-9deg); } 70% { opacity: 1; transform: scale(0.96) rotate(-9deg); } 85% { transform: scale(1.03) rotate(-9deg); } 100% { opacity: 1; transform: scale(1) rotate(-9deg); } }
-@keyframes brShake { 0%, 100% { transform: none; } 20% { transform: translate(1px, -1px); } 40% { transform: translate(-1px, 1px); } 60% { transform: translate(1px, 1px); } 80% { transform: translate(-1px, 0); } }
-@keyframes brSpin { to { transform: rotate(360deg); } }
-::-webkit-scrollbar { width: 0; height: 0; }
-</style>
-</helmet>
+<body class="locked">
+  <div class="grain"></div><div class="vignette"></div>
 
-<div style="position: fixed; inset: 0; background: #000; overflow: hidden; font-family: Nimbus, system-ui, sans-serif;">
+  <div class="opening" id="opening">
+    <div class="screen"><div class="opening-inner">
+      <div class="eyebrow">Opening</div>
+      <div class="date">04.08.1994</div>
+      <div class="name">Oleksandr</div>
+      <div class="opening-copy">Для цього дня зберігся<br>особливий запис.</div>
+      <button class="hold" id="holdButton" aria-label="Hold to open"><span>Hold to open</span></button>
+    </div></div>
+  </div>
 
-  <div style="position: absolute; inset: 0; z-index: 90; pointer-events: none; opacity: 0.5; background: repeating-linear-gradient(180deg, rgba(255,255,255,0.022) 0 1px, transparent 1px 3px);"></div>
-  <div style="position: absolute; inset: 0; z-index: 91; pointer-events: none; background: radial-gradient(120% 78% at 50% 42%, transparent 42%, rgba(0,0,0,0.72) 100%);"></div>
+  <div class="returning" id="returning"><div class="returning-box">
+    <div class="eyebrow">Returning to your day</div>
+    <h2>04.08.1994</h2>
+    <p>Повертаємося до дня,<br>коли почалася твоя історія.</p>
+    <div class="scan"></div>
+  </div></div>
 
-  <sc-if value="{{ isGate }}" hint-placeholder-val="{{ true }}">
-    <div onPointerDown="{{ holdStart }}" onPointerUp="{{ holdEnd }}" onPointerLeave="{{ holdEnd }}" style="position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 46px; cursor: pointer; user-select: none; touch-action: none; animation: brIn 1.4s both;">
-      <div style="font-family: Songer, sans-serif; font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(242,237,231,0.3);">Archive of terra</div>
-      <div style="position: relative; width: 128px; height: 128px; display: grid; place-items: center;">
-        <div style="position: absolute; inset: 0; border: 1px solid rgba(242,237,231,0.16); border-radius: 50%;"></div>
-        <div style="position: absolute; inset: 0; border-radius: 50%; border: 1px solid #F2EDE7; clip-path: inset(0 0 {{ holdRemain }}% 0); transition: clip-path 90ms linear;"></div>
-        <div style="font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(242,237,231,0.55); text-align: center; line-height: 1.8;">Hold</div>
+  <main id="main">
+    <section class="hero" id="top"><div class="wrap reveal">
+      <div class="eyebrow">04.08.1994</div>
+      <h1>The day<br>you arrived.</h1>
+    </div></section>
+
+    <section id="receipt"><div class="wrap reveal">
+      <div class="eyebrow" style="text-align:center;margin-bottom:22px">Birth Receipt</div>
+      <div class="receipt" id="mainReceipt">
+        <div class="dash">──────────────────────────</div>
+        <div class="receipt-title">BIRTH RECEIPT</div>
+        <div class="row"><span>NAME</span><span>OLEKSANDR</span></div>
+        <div class="row"><span>DATE</span><span>04.08.1994</span></div>
+        <div class="row"><span>DAY</span><span>THURSDAY</span></div>
+        <div class="row"><span>SEASON</span><span>SUMMER</span></div>
+        <div class="row"><span>ZODIAC</span><span>LEO</span></div>
+        <div class="row"><span>MOON</span><span>WANING CRESCENT</span></div>
+        <div class="row"><span>WORLD POP.</span><span>5.7 BILLION</span></div>
+        <br>
+        <div class="row"><span>STATUS</span><span>ARRIVED</span></div>
+        <div class="row"><span>ORDER NO.</span><span>04081994</span></div>
+        <div class="receipt-note">Thank you for arriving.</div>
+        <div class="dash">──────────────────────────</div>
       </div>
-      <div style="text-align: center; padding: 0 32px;">
-        <div style="font-family: Novelist, serif; font-size: 21px; line-height: 1.35; color: rgba(242,237,231,0.82); max-width: 22ch; margin: 0 auto;">Place the card face down and hold.</div>
-        <div style="margin-top: 18px; font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: 0.14em; color: rgba(242,237,231,0.3);">ONE RECORD · ONE DAY · NOT YET OPENED</div>
+      <div class="receipt-copy">Твою появу зареєстровано.<br><br>Відтоді 4 серпня —<br>не просто дата.</div>
+      <div style="text-align:center"><a class="cta" href="#sign">Explore your day</a></div>
+    </div></section>
+
+    <section id="sign"><div class="wrap reveal">
+      <div class="section-head"><div><div class="eyebrow">Your sign</div><h2>Leo</h2></div><div class="section-no">01 / 05</div></div>
+      <p class="lead">The fire you arrived with.</p>
+      <div class="facts"><div class="fact"><div class="fact-k">Element</div><div class="fact-v">Fire</div></div><div class="fact"><div class="fact-k">Ruling star</div><div class="fact-v">Sun</div></div></div>
+      <div class="copy"><p>Лев — знак внутрішнього вогню, сили та впевненості.</p><p>Знак людей, які вміють залишати після себе світло.</p><p>Але твоя історія завжди більша за будь-який гороскоп.</p></div>
+    </div></section>
+
+    <section id="sky"><div class="wrap reveal">
+      <div class="section-head"><div><div class="eyebrow">The sky</div><h2>The sky<br>above you</h2></div><div class="section-no">02 / 05</div></div>
+      <p class="lead">Таким був Місяць<br>у день твоєї появи.</p>
+      <div class="moon"><div class="moon-disc" aria-hidden="true"></div><div class="moon-meta"><div class="display" style="font-size:clamp(48px,10vw,105px)">Waning<br>Crescent</div><div class="facts"><div class="fact"><div class="fact-k">Illumination</div><div class="fact-v">≈ 8%</div></div></div></div></div>
+      <div class="copy"><p>На небі залишався тонкий спадний серп.</p><p>Ніч ставала темнішою.<br>А твоя історія лише починалася.</p><p lang="en">The sky was almost dark.<br>Your story was just beginning.</p></div>
+    </div></section>
+
+    <section id="sound"><div class="wrap reveal">
+      <div class="section-head"><div><div class="eyebrow">The sound</div><h2>The sound of<br>your arrival</h2></div><div class="section-no">03 / 05</div></div>
+      <p class="lead">Поки починалася твоя історія,<br>світ уже мав свій саундтрек.</p>
+      <div class="song-card"><div><div class="eyebrow">UK №1 that week</div><h3>Love Is All Around</h3><div class="artist">Wet Wet Wet</div></div><a class="link" href="https://www.youtube.com/results?search_query=Wet+Wet+Wet+Love+Is+All+Around" target="_blank" rel="noopener">Play the song</a></div>
+      <div class="copy"><p>У день твоєї появи ця пісня була на вершині британського чарту.</p><p>Світ уже повторював:<br><em>Love is all around.</em></p><p>Для дня, коли ти з’явився, це звучить майже як послання.</p></div>
+      <div class="song-card"><div><div class="eyebrow">US №1 that week</div><h3>Stay (I Missed You)</h3><div class="artist">Lisa Loeb &amp; Nine Stories</div></div><a class="link" href="https://www.youtube.com/results?search_query=Lisa+Loeb+Stay+I+Missed+You" target="_blank" rel="noopener">Listen</a></div>
+      <div class="copy"><p>По інший бік Атлантики ця пісня очолювала американський чарт.</p><p>Один день.<br>Два континенти.<br>Два саундтреки до початку твоєї історії.</p></div>
+      <div class="eyebrow" style="margin-top:56px">Also playing that summer</div>
+      <div class="list"><div class="list-row"><span>I SWEAR</span><span>ALL-4-ONE</span></div><div class="list-row"><span>FANTASTIC VOYAGE</span><span>COOLIO</span></div><div class="list-row"><span>CAN YOU FEEL THE LOVE TONIGHT</span><span>ELTON JOHN</span></div></div>
+      <p class="lead">The world already had a soundtrack.<br>Then your story joined in.</p>
+    </div></section>
+
+    <section id="screen"><div class="wrap reveal">
+      <div class="section-head"><div><div class="eyebrow">On the big screen</div><h2>What the world<br>was watching</h2></div><div class="section-no">04 / 05</div></div>
+      <p class="lead">До того як у тебе з’явився улюблений фільм,<br>у світу вже були свої герої.</p>
+      <div class="movie-card"><div><div class="eyebrow">One of the biggest movies in cinemas that week</div><h3>The Mask</h3><div class="artist">1994 · Comedy · Fantasy</div></div><a class="link" href="https://www.youtube.com/results?search_query=The+Mask+1994+official+trailer" target="_blank" rel="noopener">Watch trailer</a></div>
+      <div class="copy"><p>На великих екранах Джим Керрі надягав зелену маску і перетворював звичайний світ на щось яскраве та непередбачуване.</p><p>Поки глядачі відкривали цей новий кіновсесвіт, твоя історія лише починалася.</p></div>
+      <div class="eyebrow" style="margin-top:56px">Also on the big screen</div>
+      <div class="list"><div class="list-row"><span>FORREST GUMP</span><span>1994</span></div><div class="list-row"><span>THE LION KING</span><span>1994</span></div><div class="list-row"><span>TRUE LIES</span><span>1994</span></div><div class="list-row"><span>SPEED</span><span>1994</span></div></div>
+      <p class="lead">The world already had its stories.<br>Yours was just opening.</p>
+    </div></section>
+
+    <section id="world"><div class="wrap reveal">
+      <div class="section-head"><div><div class="eyebrow">The world</div><h2>The world<br>you entered</h2></div><div class="section-no">05 / 05</div></div>
+      <div class="copy"><p>Світ уже був у русі.</p><p>Приблизно 5,7 мільярда людей прокидалися, будували плани та починали нові історії.</p><p>А 4 серпня почалася твоя.</p></div>
+      <div class="world-stat">5.7<br>Billion</div><div class="world-label">People on Earth</div>
+      <div class="copy"><p>Серед мільярдів людей з’явилася ще одна неповторна історія.</p></div>
+      <div class="song-card"><div><div class="eyebrow">The year of play</div><h3>PlayStation</h3><div class="artist">Пізніше того ж року у світі з’явилася перша PlayStation.</div></div></div>
+      <div class="copy"><p>Починалася нова епоха ігор і цифрових світів.</p></div>
+      <div class="time-grid"><div class="time-box"><strong>32</strong><span>Years on Earth</span></div><div class="time-box"><strong>11 688</strong><span>Days on Earth</span></div></div>
+      <div class="copy"><p>11 688 днів ідей, зустрічей, рішень, важливих моментів і ще не завершених історій.</p></div>
+    </div></section>
+
+    <section class="arrival" id="arrival"><div class="wrap reveal">
+      <div class="eyebrow">Your arrival</div>
+      <div class="display">Everything before this was history.</div>
+      <p class="lead">А потім з’явився ти.</p>
+      <div class="letter"><p>Олександре,<br>вітаємо з днем народження!</p><p>Нехай попереду буде більше моментів, які хочеться запам’ятовувати, ідей, які хочеться втілювати, і людей, із якими хочеться розділяти найважливіше.</p><p>Нехай твій внутрішній вогонь допомагає рухатися вперед, відкривати нове та залишатися собою.</p><p>Ми раді, що в певний момент наші історії перетнулися.</p><p>З днем народження!</p></div>
+      <div class="signature">— Команда 380</div>
+    </div></section>
+
+    <section class="final" id="final"><div class="wrap reveal">
+      <div class="eyebrow">Final screen</div>
+      <h2>Your arrival has been recorded.</h2>
+      <div class="receipt" id="finalReceipt">
+        <div class="receipt-title">BIRTH RECEIPT</div><div class="dash">──────────────────────────</div>
+        <div class="row"><span>NAME</span><span>OLEKSANDR</span></div><div class="row"><span>ARRIVED</span><span>04.08.1994</span></div><div class="row"><span>TIME ON EARTH</span><span>32 YEARS</span></div><div class="row"><span>STATUS</span><span>STILL EXPLORING</span></div>
+        <div class="dash">──────────────────────────</div>
       </div>
-    </div>
-  </sc-if>
+      <div class="final-copy">Світ змінився за ці роки.<br><br>Добре, що ти в ньому є.</div>
+      <div class="final-actions"><button class="cta" id="saveReceipt">Save my Receipt</button><button class="cta" id="replay">Replay</button></div>
+    </div></section>
+  </main>
 
-  <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; justify-content: center; padding: 0 26px; animation: brIn 0.6s both;">
-      <div style="position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(242,237,231,0.5), transparent); animation: brScanline 3.2s linear infinite;"></div>
-      <div style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; line-height: 2.6; letter-spacing: 0.08em; color: rgba(242,237,231,0.42); max-width: 460px; margin: 0 auto; width: 100%;">
-        <sc-for list="{{ searchLog }}" as="l" hint-placeholder-count="3">
-          <div style="animation: brIn 0.3s both;">{{ l }}</div>
-        </sc-for>
-      </div>
-      <div style="max-width: 460px; margin: 40px auto 0; width: 100%; text-align: center;">
-        <div style="font-family: Druk, sans-serif; font-size: clamp(44px, 15vw, 92px); line-height: 0.9; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: #F2EDE7; filter: blur({{ scrubBlur }}px);">{{ scrubDate }}</div>
-        <div style="margin-top: 20px; font-family: Songer, sans-serif; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(242,237,231,0.35);">{{ scrubLabel }}</div>
-      </div>
-    </div>
-  </sc-if>
+  <script>
+    const opening=document.getElementById('opening');
+    const returning=document.getElementById('returning');
+    const hold=document.getElementById('holdButton');
+    let timer=null, progress=0;
+    const setProgress=v=>{ progress=Math.max(0,Math.min(100,v)); hold.style.setProperty('--progress',progress+'%'); };
+    const startHold=e=>{ e.preventDefault(); clearInterval(timer); timer=setInterval(()=>{ setProgress(progress+3); if(progress>=100){ clearInterval(timer); openArchive(); } },35); };
+    const stopHold=()=>{ clearInterval(timer); if(progress<100){ timer=setInterval(()=>{ setProgress(progress-5); if(progress<=0) clearInterval(timer); },30); } };
+    ['pointerdown'].forEach(ev=>hold.addEventListener(ev,startHold));
+    ['pointerup','pointerleave','pointercancel'].forEach(ev=>hold.addEventListener(ev,stopHold));
+    function openArchive(){ if(navigator.vibrate) navigator.vibrate([20,35,70]); opening.classList.add('hidden'); returning.classList.add('show'); setTimeout(()=>{ returning.classList.remove('show'); document.body.classList.remove('locked'); window.scrollTo({top:0,behavior:'instant'}); },2300); }
 
-  <sc-if value="{{ isReceipt }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 20; overflow-y: auto; -webkit-overflow-scrolling: touch; animation: brIn 0.8s both;">
-      <div style="max-width: 430px; margin: 0 auto; padding: 40px 26px 190px; font-family: ui-monospace, Menlo, monospace; font-size: 13px; letter-spacing: 0.015em;">
-
-        <div style="text-align: center; animation: brPrint 0.4s both;">
-          <div style="font-family: Songer, sans-serif; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(242,237,231,0.5);">Archive of terra</div>
-          <div style="margin-top: 8px; font-size: 10px; letter-spacing: 0.14em; color: rgba(242,237,231,0.32);">VOL. {{ year }} · RECORD {{ recordNo }}</div>
-        </div>
-
-        <div style="margin: 26px 0 18px; height: 1px; background: repeating-linear-gradient(90deg, rgba(242,237,231,0.4) 0 5px, transparent 5px 9px); animation: brPrint 0.4s 0.2s both;"></div>
-
-        <sc-for list="{{ factRows }}" as="r" hint-placeholder-count="8">
-          <div style="display: flex; justify-content: space-between; gap: 14px; padding: 7px 0; color: rgba(242,237,231,0.9); animation: brPrint 0.34s both; animation-delay: {{ r.delay }}s;">
-            <span style="color: rgba(242,237,231,0.45); letter-spacing: 0.1em;">{{ r.k }}</span>
-            <span style="text-align: right; font-variant-numeric: tabular-nums;">{{ r.v }}</span>
-          </div>
-        </sc-for>
-
-        <div style="margin: 22px 0 14px; display: flex; align-items: center; gap: 12px; animation: brPrint 0.4s 1.9s both;">
-          <div style="flex: 1; height: 1px; background: rgba(242,237,231,0.2);"></div>
-          <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(242,237,231,0.42);">Records held · tap to retrieve</div>
-          <div style="flex: 1; height: 1px; background: rgba(242,237,231,0.2);"></div>
-        </div>
-
-        <sc-for list="{{ roomRows }}" as="r" hint-placeholder-count="6">
-          <div onClick="{{ r.open }}" style="display: flex; justify-content: space-between; gap: 14px; align-items: baseline; padding: 13px 0; border-bottom: 1px solid rgba(242,237,231,0.09); cursor: pointer; animation: brPrint 0.34s both; animation-delay: {{ r.delay }}s;" style-hover="background: rgba(242,237,231,0.05); padding-left: 6px; padding-right: 6px;">
-            <span style="letter-spacing: 0.12em; color: {{ r.keyColor }};">{{ r.k }}</span>
-            <span style="text-align: right; flex: 1; font-size: 12px; color: {{ r.valColor }};">{{ r.v }}</span>
-            <span style="font-size: 11px; color: rgba(242,237,231,0.3); width: 14px; text-align: right;">{{ r.mark }}</span>
-          </div>
-        </sc-for>
-
-        <div style="margin: 26px 0 16px; height: 1px; background: repeating-linear-gradient(90deg, rgba(242,237,231,0.4) 0 5px, transparent 5px 9px);"></div>
-
-        <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0 0;">
-          <span style="letter-spacing: 0.12em; color: rgba(242,237,231,0.45);">STATUS</span>
-          <span style="font-family: Songer, sans-serif; font-size: 15px; letter-spacing: 0.14em; color: {{ statusColor }};">{{ statusText }}<span style="animation: brBlink 1.15s steps(1) infinite; margin-left: 5px;">▌</span></span>
-        </div>
-
-        <div style="margin-top: 34px; text-align: center; font-size: 10px; letter-spacing: 0.12em; color: rgba(242,237,231,0.26); line-height: 2;">
-          <div>{{ progressLine }}</div>
-          <div style="margin-top: 22px; font-family: Novelist, serif; font-size: 15px; letter-spacing: 0; color: rgba(242,237,231,0.4);">{{ hintLine }}</div>
-        </div>
-
-        <sc-if value="{{ allDone }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 46px; display: flex; justify-content: center; animation: brRise 0.8s both;">
-            <div onClick="{{ seal }}" style="border: 1px solid rgba(242,237,231,0.35); padding: 18px 30px; font-family: Songer, sans-serif; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; cursor: pointer; color: #F2EDE7;" style-hover="background: #F2EDE7; color: #000; border-color: #F2EDE7;">Close the record</div>
-          </div>
-        </sc-if>
-      </div>
-    </div>
-  </sc-if>
-
-  <sc-if value="{{ inRoom }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 40; background: {{ roomBg }}; overflow-y: auto; -webkit-overflow-scrolling: touch; animation: brIn 0.5s both;">
-
-      <div style="position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 20px 22px; background: linear-gradient(180deg, {{ roomBg }} 55%, transparent); font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: {{ roomDim }};">
-        <span>{{ roomIndexLabel }}</span>
-        <span onClick="{{ tear }}" style="cursor: pointer; border-bottom: 1px solid currentColor; padding-bottom: 3px;">Tear to close ▽</span>
-      </div>
-
-      <div style="max-width: 620px; margin: 0 auto; padding: 8px 22px 140px;">
-
-        <h1 style="font-family: Druk, sans-serif; text-transform: uppercase; font-size: clamp(46px, 16vw, 104px); line-height: 0.86; letter-spacing: -0.02em; margin: 12px 0 0; color: {{ roomInk }}; animation: brTitleIn 1s cubic-bezier(.16,1,.3,1) both;">{{ roomTitle }}</h1>
-        <p style="font-family: Novelist, serif; font-size: clamp(19px, 5vw, 26px); line-height: 1.25; margin: 20px 0 0; max-width: 24ch; color: {{ roomSub }}; animation: brRise 0.9s 0.25s both;">{{ roomLine }}</p>
-
-        <sc-if value="{{ isMusic }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 54px; animation: brRise 0.9s 0.4s both;">
-            <div style="display: flex; align-items: center; gap: 26px; flex-wrap: wrap;">
-              <div style="position: relative; width: 190px; height: 190px; flex: none;">
-                <div style="position: absolute; inset: 0; border-radius: 50%; background: repeating-radial-gradient(circle at 50% 50%, #101010 0 2px, #171717 2px 4px); box-shadow: 0 0 0 1px rgba(242,237,231,0.12), 0 30px 60px rgba(0,0,0,0.8); animation: brSpin 3.6s linear infinite;"></div>
-                <div style="position: absolute; inset: 38%; border-radius: 50%; background: #F2EDE7;"></div>
-                <div style="position: absolute; inset: 48.5%; border-radius: 50%; background: #000;"></div>
-              </div>
-              <div>
-                <div style="font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(242,237,231,0.4);">No. 1 · Billboard hot 100</div>
-                <div style="font-family: Druk, sans-serif; text-transform: uppercase; font-size: 34px; line-height: 0.95; letter-spacing: -0.015em; margin-top: 12px;">{{ d.song }}</div>
-                <div style="font-family: Nimbus, sans-serif; font-size: 16px; margin-top: 10px; color: rgba(242,237,231,0.6);">{{ d.artist }}</div>
-                <div style="margin-top: 14px; font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.1em; color: rgba(242,237,231,0.35);">{{ d.songWeeks }}</div>
-              </div>
-            </div>
-            <div style="margin-top: 34px; display: flex; align-items: flex-end; gap: 3px; height: 62px;">
-              <sc-for list="{{ wave }}" as="w" hint-placeholder-count="40">
-                <div style="flex: 1; background: rgba(242,237,231,0.55); height: {{ w.h }}%; animation: brIn 0.5s both; animation-delay: {{ w.d }}s;"></div>
-              </sc-for>
-            </div>
-            <div style="margin-top: 12px; display: flex; justify-content: space-between; font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.1em; color: rgba(242,237,231,0.3);">
-              <span>00:00</span><span>SOUNDTRACK OF YOUR ARRIVAL</span><span>03:{{ d.songSec }}</span>
-            </div>
-          </div>
-
-          <div style="margin-top: 62px; animation: brRise 0.9s 0.55s both;">
-            <div style="font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(242,237,231,0.4); padding-bottom: 12px; border-bottom: 1px solid rgba(242,237,231,0.14);">The charts that week</div>
-            <sc-for list="{{ d.charts }}" as="c" hint-placeholder-count="6">
-              <div style="display: grid; grid-template-columns: 34px 1fr auto; gap: 14px; align-items: baseline; padding: 15px 0; border-bottom: 1px solid rgba(242,237,231,0.08);" style-hover="background: rgba(242,237,231,0.04);">
-                <span style="font-family: ui-monospace, monospace; font-size: 12px; color: rgba(242,237,231,0.35);">{{ c.n }}</span>
-                <span style="font-family: Songer, sans-serif; text-transform: uppercase; font-size: 15px; letter-spacing: -0.01em;">{{ c.t }}</span>
-                <span style="font-size: 13px; color: rgba(242,237,231,0.45);">{{ c.a }}</span>
-              </div>
-            </sc-for>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ isSky }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 46px; position: relative; height: 340px; border: 1px solid rgba(242,237,231,0.12); overflow: hidden; animation: brRise 0.9s 0.4s both;">
-            <sc-for list="{{ stars }}" as="s" hint-placeholder-count="60">
-              <div style="position: absolute; left: {{ s.x }}%; top: {{ s.y }}%; width: {{ s.r }}px; height: {{ s.r }}px; border-radius: 50%; background: #F2EDE7; animation: brTwinkle {{ s.t }}s ease-in-out infinite;"></div>
-            </sc-for>
-            <div onClick="{{ pickStar }}" style="position: absolute; left: 62%; top: 34%; width: 5px; height: 5px; border-radius: 50%; background: #FF41C9; box-shadow: 0 0 14px 4px rgba(255,65,201,0.55); cursor: pointer;"></div>
-            <div style="position: absolute; left: 8%; bottom: 8%; width: 118px; height: 118px; border-radius: 50%; background: radial-gradient(circle at 38% 30%, #f4efe7, #cdc6bb 55%, #8b857b); box-shadow: inset -34px 0 34px -8px rgba(0,0,0,0.97), 0 0 60px rgba(242,237,231,0.12);"></div>
-            <div style="position: absolute; right: 14px; top: 14px; font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.14em; color: rgba(242,237,231,0.4); text-align: right; line-height: 2;">{{ d.skyCoord }}<br>{{ d.time }}</div>
-          </div>
-          <div style="margin-top: 18px; min-height: 74px;">
-            <sc-if value="{{ starPicked }}" hint-placeholder-val="{{ false }}">
-              <div style="animation: brRise 0.8s both; border-left: 1px solid #FF41C9; padding-left: 16px;">
-                <div style="font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #FF41C9;">{{ d.starName }} · {{ d.starDist }}</div>
-                <div style="font-family: Novelist, serif; font-size: 21px; line-height: 1.3; margin-top: 10px; max-width: 26ch; color: rgba(242,237,231,0.9);">{{ starSentence }}</div>
-              </div>
-            </sc-if>
-            <sc-if value="{{ starUnpicked }}" hint-placeholder-val="{{ true }}">
-              <div style="font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; color: rgba(242,237,231,0.35); animation: brBreathe 3s ease-in-out infinite;">ONE STAR IS MARKED. TOUCH IT.</div>
-            </sc-if>
-          </div>
-          <div style="margin-top: 54px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: rgba(242,237,231,0.12); animation: brRise 0.9s 0.55s both;">
-            <sc-for list="{{ d.skyFacts }}" as="f" hint-placeholder-count="6">
-              <div style="background: #000; padding: 20px 16px 22px;">
-                <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(242,237,231,0.4);">{{ f.k }}</div>
-                <div style="font-family: Songer, sans-serif; font-size: 19px; letter-spacing: -0.01em; margin-top: 10px;">{{ f.v }}</div>
-              </div>
-            </sc-for>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ isCinema }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 48px; animation: brRise 0.9s 0.4s both;">
-            <div style="position: relative; aspect-ratio: 2.39 / 1; border: 1px solid rgba(242,237,231,0.14); background: #050505; display: grid; place-items: center; overflow: hidden; animation: brFlicker 5s ease-in-out infinite;">
-              <div style="position: absolute; inset: 0; background: radial-gradient(60% 90% at 50% 45%, rgba(242,237,231,0.1), transparent 70%);"></div>
-              <div style="text-align: center; padding: 0 20px;">
-                <div style="font-family: Druk, sans-serif; text-transform: uppercase; font-size: clamp(28px, 8vw, 52px); line-height: 0.92; letter-spacing: -0.015em;">{{ d.movie }}</div>
-                <div style="margin-top: 14px; font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.2em; color: rgba(242,237,231,0.45);">{{ d.movieMeta }}</div>
-              </div>
-            </div>
-          </div>
-          <div style="margin-top: 46px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 26px; animation: brRise 0.9s 0.5s both;">
-            <sc-for list="{{ d.cinemaFacts }}" as="f" hint-placeholder-count="4">
-              <div>
-                <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(242,237,231,0.4);">{{ f.k }}</div>
-                <div style="font-family: Songer, sans-serif; font-size: 20px; margin-top: 9px; letter-spacing: -0.01em;">{{ f.v }}</div>
-              </div>
-            </sc-for>
-          </div>
-          <div style="margin-top: 54px; animation: brRise 0.9s 0.65s both;">
-            <div style="border: 1px solid rgba(242,237,231,0.3); display: grid; grid-template-columns: 1fr auto;">
-              <div style="padding: 24px 22px;">
-                <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(242,237,231,0.45);">Admit one</div>
-                <div style="font-family: Druk, sans-serif; text-transform: uppercase; font-size: 26px; line-height: 0.95; margin-top: 12px;">{{ d.movie }}</div>
-                <div style="margin-top: 16px; font-family: ui-monospace, monospace; font-size: 11px; line-height: 2; letter-spacing: 0.08em; color: rgba(242,237,231,0.5);">{{ d.ticketHouse }}<br>{{ d.date }} · {{ d.showtime }} · ROW {{ d.row }} SEAT {{ d.seat }}</div>
-              </div>
-              <div style="border-left: 1px dashed rgba(242,237,231,0.3); padding: 24px 18px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 16px;">
-                <div style="font-family: Songer, sans-serif; font-size: 22px;">{{ d.ticketPrice }}</div>
-                <div style="font-family: ui-monospace, monospace; font-size: 8px; letter-spacing: 0.2em; color: rgba(242,237,231,0.4); writing-mode: vertical-rl;">{{ recordNo }}</div>
-              </div>
-            </div>
-            <div onClick="{{ collect }}" style="margin-top: 16px; font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(242,237,231,0.5); cursor: pointer; border-bottom: 1px solid rgba(242,237,231,0.2); display: inline-block; padding-bottom: 4px;" style-hover="color: #F2EDE7;">{{ collectLabel }}</div>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ isWorld }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 50px; animation: brRise 0.9s 0.4s both;">
-            <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(0,0,0,0.45); padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.25);">What things cost</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: rgba(0,0,0,0.2); margin-top: 1px;">
-              <sc-for list="{{ d.prices }}" as="p" hint-placeholder-count="6">
-                <div style="background: #F2EDE7; padding: 20px 16px 22px;">
-                  <div style="font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(0,0,0,0.5);">{{ p.k }}</div>
-                  <div style="font-family: Songer, sans-serif; font-size: 22px; margin-top: 9px; color: #000;">{{ p.v }}</div>
-                  <div style="font-family: ui-monospace, monospace; font-size: 9px; margin-top: 6px; color: rgba(0,0,0,0.4);">TODAY {{ p.now }}</div>
-                </div>
-              </sc-for>
-            </div>
-          </div>
-          <div style="margin-top: 54px; animation: brRise 0.9s 0.5s both;">
-            <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(0,0,0,0.45); padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.25);">In the world that week</div>
-            <sc-for list="{{ d.events }}" as="e" hint-placeholder-count="4">
-              <div style="display: grid; grid-template-columns: 62px 1fr; gap: 16px; padding: 17px 0; border-bottom: 1px solid rgba(0,0,0,0.12);">
-                <span style="font-family: ui-monospace, monospace; font-size: 11px; color: rgba(0,0,0,0.45);">{{ e.d }}</span>
-                <span style="font-family: Nimbus, sans-serif; font-size: 16px; line-height: 1.5; color: #0a0a0a;">{{ e.t }}</span>
-              </div>
-            </sc-for>
-          </div>
-          <div style="margin-top: 54px; animation: brRise 0.9s 0.6s both;">
-            <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(0,0,0,0.45); padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.25);">Who was in charge</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 22px; margin-top: 22px;">
-              <sc-for list="{{ d.leaders }}" as="l" hint-placeholder-count="5">
-                <div>
-                  <div style="font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(0,0,0,0.45);">{{ l.k }}</div>
-                  <div style="font-family: Songer, sans-serif; font-size: 17px; margin-top: 8px; color: #000;">{{ l.v }}</div>
-                </div>
-              </sc-for>
-            </div>
-          </div>
-          <div style="margin-top: 66px; padding-top: 30px; border-top: 1px solid rgba(0,0,0,0.25); animation: brRise 0.9s 0.7s both;">
-            <div style="font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(0,0,0,0.45);">What did not exist yet</div>
-            <sc-for list="{{ d.absent }}" as="a" hint-placeholder-count="4">
-              <div style="font-family: Druk, sans-serif; text-transform: uppercase; font-size: clamp(24px, 7vw, 40px); line-height: 1.06; letter-spacing: -0.015em; color: #000; margin-top: 16px;">{{ a }}</div>
-            </sc-for>
-            <div style="font-family: Novelist, serif; font-size: 22px; margin-top: 26px; color: rgba(0,0,0,0.7);">All of it was waiting.</div>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ isPress }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 50px; display: grid; gap: 22px; animation: brRise 0.9s 0.4s both;">
-            <sc-for list="{{ d.papers }}" as="p" hint-placeholder-count="4">
-              <div style="border: 1px solid rgba(242,237,231,0.16); padding: 24px 22px 26px; background: rgba(255,255,255,0.015);" style-hover="background: rgba(255,255,255,0.045); border-color: rgba(242,237,231,0.34);">
-                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid rgba(242,237,231,0.2);">
-                  <span style="font-family: Druk, sans-serif; text-transform: uppercase; font-size: 22px; letter-spacing: -0.01em;">{{ p.name }}</span>
-                  <span style="font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.14em; color: rgba(242,237,231,0.4);">{{ p.city }} · {{ p.price }}</span>
-                </div>
-                <div style="font-family: Songer, sans-serif; font-size: clamp(19px, 5vw, 25px); line-height: 1.15; letter-spacing: -0.02em; margin-top: 16px; max-width: 30ch;">{{ p.head }}</div>
-                <div style="margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                  <div style="height: 46px; background: repeating-linear-gradient(180deg, rgba(242,237,231,0.22) 0 1px, transparent 1px 5px);"></div>
-                  <div style="height: 46px; background: repeating-linear-gradient(180deg, rgba(242,237,231,0.22) 0 1px, transparent 1px 5px);"></div>
-                </div>
-              </div>
-            </sc-for>
-          </div>
-          <div style="margin-top: 44px; font-family: Novelist, serif; font-size: 20px; line-height: 1.4; color: rgba(242,237,231,0.55); max-width: 34ch;">Somewhere in the small print of one of these, the day you were born is simply Thursday.</div>
-        </sc-if>
-
-        <sc-if value="{{ isObject }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 50px; display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 1px; background: rgba(242,237,231,0.12); animation: brRise 0.9s 0.4s both;">
-            <sc-for list="{{ d.objects }}" as="o" hint-placeholder-count="8">
-              <div style="background: #000; padding: 26px 18px 24px; min-height: 168px; display: flex; flex-direction: column; justify-content: space-between; transition: background 300ms;" style-hover="background: #0d0d0d;">
-                <div style="font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: 0.14em; color: rgba(242,237,231,0.32);">{{ o.no }}</div>
-                <div>
-                  <div style="font-family: Songer, sans-serif; text-transform: uppercase; font-size: 17px; line-height: 1.1; letter-spacing: -0.01em;">{{ o.n }}</div>
-                  <div style="font-family: Nimbus, sans-serif; font-size: 12px; line-height: 1.5; margin-top: 8px; color: rgba(242,237,231,0.45);">{{ o.m }}</div>
-                </div>
-              </div>
-            </sc-for>
-          </div>
-          <div style="margin-top: 40px; font-family: Novelist, serif; font-size: 20px; line-height: 1.4; color: rgba(242,237,231,0.55); max-width: 32ch;">Every one of these was the newest thing in the world for a while.</div>
-        </sc-if>
-
-        <sc-if value="{{ isCapsule }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top: 50px; display: grid; gap: 1px; background: rgba(242,237,231,0.12); animation: brRise 0.9s 0.4s both;">
-            <sc-for list="{{ artifacts }}" as="a" hint-placeholder-count="6">
-              <div style="background: #000; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 22px 18px;">
-                <div>
-                  <div style="font-family: Songer, sans-serif; text-transform: uppercase; font-size: 16px; letter-spacing: -0.01em; color: {{ a.ink }};">{{ a.n }}</div>
-                  <div style="font-family: ui-monospace, monospace; font-size: 10px; letter-spacing: 0.12em; margin-top: 7px; color: rgba(242,237,231,0.35);">{{ a.s }}</div>
-                </div>
-                <div style="font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: {{ a.tagColor }};">{{ a.tag }}</div>
-              </div>
-            </sc-for>
-          </div>
-          <div style="margin-top: 40px; font-family: Novelist, serif; font-size: 20px; line-height: 1.4; color: rgba(242,237,231,0.55); max-width: 32ch;">{{ capsuleLine }}</div>
-        </sc-if>
-
-        <div style="margin-top: 78px; display: flex; justify-content: center;">
-          <div onClick="{{ tear }}" style="cursor: pointer; text-align: center;">
-            <div style="width: 190px; height: 1px; background: repeating-linear-gradient(90deg, {{ roomDim }} 0 5px, transparent 5px 9px);"></div>
-            <div style="margin-top: 16px; font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: {{ roomDim }};">Tear here</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </sc-if>
-
-  <sc-if value="{{ isFinal }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 60; background: #000; overflow-y: auto; animation: brIn 1s both;">
-      <div style="max-width: 430px; margin: 0 auto; padding: 60px 26px 120px; text-align: center;">
-        <div style="font-family: Songer, sans-serif; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(242,237,231,0.4);">Record closed</div>
-        <div style="position: relative; margin-top: 40px; border: 1px solid rgba(242,237,231,0.16); padding: 34px 24px 40px; font-family: ui-monospace, Menlo, monospace; font-size: 13px; text-align: left;">
-          <sc-for list="{{ finalRows }}" as="r" hint-placeholder-count="12">
-            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; color: rgba(242,237,231,0.88);">
-              <span style="color: rgba(242,237,231,0.42); letter-spacing: 0.1em;">{{ r.k }}</span>
-              <span style="text-align: right; font-variant-numeric: tabular-nums;">{{ r.v }}</span>
-            </div>
-          </sc-for>
-          <div onClick="{{ flip }}" style="position: absolute; right: 18px; bottom: -30px; width: 108px; height: 108px; border-radius: 50%; border: 1px solid #FF41C9; color: #FF41C9; display: grid; place-items: center; text-align: center; font-family: Songer, sans-serif; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; line-height: 2; background: #000; cursor: pointer; animation: brSeal 0.9s cubic-bezier(.16,1,.3,1) 0.5s both;">Arrived<br>{{ recordNo }}<br>of one</div>
-        </div>
-        <div style="margin-top: 66px; min-height: 60px;">
-          <sc-if value="{{ flipped }}" hint-placeholder-val="{{ false }}">
-            <div style="font-family: Novelist, serif; font-size: 21px; line-height: 1.45; color: rgba(242,237,231,0.8); animation: brRise 1s both;">{{ archivistNote }}</div>
-          </sc-if>
-        </div>
-        <div style="margin-top: 60px; font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.14em; color: rgba(242,237,231,0.3); line-height: 2.4;">
-          <div>{{ sinceLine }}</div>
-          <div style="animation: brBreathe 4s ease-in-out infinite;">THE ARCHIVE WILL KEEP THIS OPEN.</div>
-        </div>
-      </div>
-    </div>
-  </sc-if>
-
-  <sc-if value="{{ showDock }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 70; display: flex; justify-content: center; padding: 0 22px 22px; pointer-events: none;">
-      <div onClick="{{ openCapsule }}" style="pointer-events: auto; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 13px 20px; border: 1px solid rgba(242,237,231,0.18); background: rgba(0,0,0,0.86); backdrop-filter: blur(8px); font-family: Songer, sans-serif; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(242,237,231,0.7);" style-hover="border-color: rgba(242,237,231,0.45); color: #F2EDE7;">
-        <span>Time capsule</span>
-        <span style="font-family: ui-monospace, monospace; letter-spacing: 0.1em; color: #FF41C9;">{{ capsuleCount }}</span>
-      </div>
-    </div>
-  </sc-if>
-
-  <sc-if value="{{ minuteHit }}" hint-placeholder-val="{{ false }}">
-    <div style="position: absolute; inset: 0; z-index: 45; background: #000; display: grid; place-items: center; animation: brIn 0.4s both;">
-      <div style="font-family: Novelist, serif; font-size: 30px; color: #F2EDE7;">This is the minute.</div>
-    </div>
-  </sc-if>
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:880},&quot;birthDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;14 · 06 · 1990&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;birthTime&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;04:12&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;birthPlace&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;KYIV, UA&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;birthYear&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1990&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
-const ROOMS = [
-  { id: "music",   key: "SOUND",   title: "Music",     line: "The soundtrack of your arrival." },
-  { id: "sky",     key: "SKY",     title: "Sky",       line: "The sky above you, exactly as it stood." },
-  { id: "cinema",  key: "SCREEN",  title: "Cinema",    line: "What the world was watching in the dark." },
-  { id: "world",   key: "WORLD",   title: "World",     line: "The world you entered, and what it cost." },
-  { id: "press",   key: "PRESS",   title: "Press",     line: "The morning papers of that day." },
-  { id: "object",  key: "OBJECTS", title: "Objects",   line: "The things people held in their hands." }
-];
-
-class Component extends DCLogic {
-  state = {
-    stage: "gate", hold: 0, room: null, visited: {}, starPicked: false,
-    collected: {}, flipped: false, pop: 5283755345, searchLog: [], scrubDate: "", scrubLabel: "", scrubBlur: 0
-  };
-
-  componentDidMount() {
-    this.popTimer = setInterval(() => this.setState(s => ({ pop: s.pop + 3 })), 1000);
-  }
-  componentWillUnmount() { clearInterval(this.popTimer); clearInterval(this.holdTimer); clearInterval(this.scrubTimer); this.timers && this.timers.forEach(clearTimeout); }
-
-  data() {
-    const p = this.props;
-    return {
-      date: p.birthDate ?? "14 · 06 · 1990", year: p.birthYear ?? "1990", time: p.birthTime ?? "04:12",
-      place: p.birthPlace ?? "KYIV, UA", day: "THURSDAY", season: "SPRING · 7 DAYS TO SOLSTICE",
-      moon: "WANING GIBBOUS", moonPct: "68.4%",
-      song: "Hold On", artist: "Wilson Phillips", songWeeks: "WEEK 1 AT NO. 1 · 2:59 IN", songSec: "59",
-      charts: [
-        { n: "01", t: "Hold On", a: "Wilson Phillips" }, { n: "02", t: "It Must Have Been Love", a: "Roxette" },
-        { n: "03", t: "Vogue", a: "Madonna" }, { n: "04", t: "Poison", a: "Bell Biv DeVoe" },
-        { n: "05", t: "All Around The World", a: "Lisa Stansfield" }, { n: "UK", t: "World In Motion", a: "England New Order" }
-      ],
-      skyCoord: "50.45°N 30.52°E", starName: "HD 141569", starDist: "36 LIGHT YEARS",
-      skyFacts: [
-        { k: "Sunrise", v: "04:47" }, { k: "Sunset", v: "21:07" }, { k: "Day length", v: "16h 20m" },
-        { k: "Visible planets", v: "Venus, Mars" }, { k: "Overhead", v: "Lyra" }, { k: "Illumination", v: "68.4%" }
-      ],
-      movie: "Total Recall", movieMeta: "NO. 1 AT THE BOX OFFICE · WEEK 2",
-      cinemaFacts: [
-        { k: "Weekend gross", v: "$25.5M" }, { k: "Average ticket", v: "$4.23" },
-        { k: "Also playing", v: "Pretty Woman" }, { k: "Opening next", v: "Dick Tracy" }
-      ],
-      ticketHouse: "KINOTEATR UKRAINA · HALL 1", showtime: "04:00", row: "12", seat: "14", ticketPrice: "0.50",
-      prices: [
-        { k: "Loaf of bread", v: "$0.70", now: "$3.10" }, { k: "Litre of fuel", v: "$0.31", now: "$1.14" },
-        { k: "Gold, per oz", v: "$352", now: "$2,340" }, { k: "Postage stamp", v: "$0.25", now: "$0.73" },
-        { k: "Cinema ticket", v: "$4.23", now: "$11.30" }, { k: "New car, avg", v: "$9,437", now: "$48,700" }
-      ],
-      events: [
-        { d: "08 JUN", t: "The World Cup opens in Italy. For a month, the planet watches the same thing at the same time." },
-        { d: "12 JUN", t: "Russia declares sovereignty. The map of the world begins to come apart quietly." },
-        { d: "14 JUN", t: "Nelson Mandela, four months out of prison, is in the middle of an eight-nation tour." },
-        { d: "22 JUN", t: "Checkpoint Charlie is dismantled and carried away by crane." }
-      ],
-      leaders: [
-        { k: "United States", v: "George H. W. Bush" }, { k: "USSR", v: "Mikhail Gorbachev" },
-        { k: "United Kingdom", v: "Margaret Thatcher" }, { k: "France", v: "François Mitterrand" },
-        { k: "West Germany", v: "Helmut Kohl" }
-      ],
-      absent: ["No world wide web.", "No text message had ever been sent.", "No photograph of you existed."],
-      papers: [
-        { name: "The New York Times", city: "NEW YORK", price: "35¢", head: "Soviet Congress Votes To Declare Russian Sovereignty" },
-        { name: "The Times", city: "LONDON", price: "40p", head: "England Held As World Cup Fever Grips The Nation" },
-        { name: "Le Monde", city: "PARIS", price: "5F", head: "L'Europe De L'Est Redessine Ses Frontières" },
-        { name: "The Washington Post", city: "WASHINGTON", price: "25¢", head: "Mandela Tour Draws Record Crowds Across America" }
-      ],
-      objects: [
-        { no: "01", n: "Game Boy", m: "One year old. Four shades of green." },
-        { no: "02", n: "Sony Walkman WM-DD9", m: "Metal body. Auto-reverse." },
-        { no: "03", n: "Nokia Cityman 900", m: "A phone you carried with two hands." },
-        { no: "04", n: "Commodore Amiga 500", m: "512KB. The best sound in any home." },
-        { no: "05", n: "Kodak Ektar 1000", m: "24 exposures. No way to check." },
-        { no: "06", n: "Casio F-91W", m: "Released 1989. Still in production." },
-        { no: "07", n: "TDK SA90 cassette", m: "Ninety minutes of someone's taste." },
-        { no: "08", n: "Air Jordan V", m: "Reflective tongue. Shark teeth." }
-      ]
-    };
-  }
-
-  ageYears() {
-    const y = parseInt(this.data().year, 10) || 1990;
-    return new Date().getFullYear() - y;
-  }
-
-  holdStart = () => {
-    if (this.state.stage !== "gate") return;
-    clearInterval(this.holdTimer);
-    this.holdTimer = setInterval(() => {
-      const h = Math.min(100, this.state.hold + 3.4);
-      if (h >= 100) { clearInterval(this.holdTimer); this.setState({ hold: 100 }); this.beginSearch(); }
-      else this.setState({ hold: h });
-    }, 60);
-  };
-  holdEnd = () => {
-    clearInterval(this.holdTimer);
-    if (this.state.stage === "gate" && this.state.hold < 100) {
-      this.holdTimer = setInterval(() => {
-        const h = this.state.hold - 6;
-        if (h <= 0) { clearInterval(this.holdTimer); this.setState({ hold: 0 }); }
-        else this.setState({ hold: h });
-      }, 40);
-    }
-  };
-
-  beginSearch() {
-    if (navigator.vibrate) navigator.vibrate(18);
-    this.timers = [];
-    const push = (t, txt) => this.timers.push(setTimeout(() => this.setState(s => ({ searchLog: s.searchLog.concat(txt) })), t));
-    this.setState({ stage: "search", searchLog: ["CONNECTING TO ARCHIVE OF TERRA"], scrubLabel: "SEARCHING", scrubBlur: 6 });
-    push(700, "INDEXING 1,096,542 DAYS");
-    push(1500, "NARROWING BY COORDINATE");
-    push(2600, "ONE RECORD MATCHES");
-
-    const start = new Date();
-    let cur = new Date(start);
-    const target = new Date(1990, 5, 14);
-    const fmt = d => String(d.getDate()).padStart(2, "0") + "·" + String(d.getMonth() + 1).padStart(2, "0") + "·" + d.getFullYear();
-    let step = 900;
-    this.scrubTimer = setInterval(() => {
-      cur = new Date(cur.getTime() - step * 86400000 / 12);
-      if (cur <= target) {
-        clearInterval(this.scrubTimer);
-        this.setState({ scrubDate: fmt(target), scrubLabel: "RECORD IDENTIFIED", scrubBlur: 0 });
-        if (navigator.vibrate) navigator.vibrate([12, 40, 60]);
-        this.timers.push(setTimeout(() => this.setState({ stage: "receipt" }), 1600));
-        return;
-      }
-      const remain = (cur - target) / (start - target);
-      step = Math.max(30, 900 * remain);
-      this.setState({ scrubDate: fmt(cur), scrubBlur: Math.min(6, remain * 7) });
-    }, 40);
-  }
-
-  open = id => () => {
-    if (navigator.vibrate) navigator.vibrate(10);
-    this.setState({ stage: "room", room: id, starPicked: false });
-  };
-  tear = () => {
-    if (navigator.vibrate) navigator.vibrate([8, 20, 30]);
-    const r = this.state.room;
-    this.setState(s => ({ stage: "receipt", room: null, visited: r && r !== "capsule" ? Object.assign({}, s.visited, { [r]: true }) : s.visited }));
-  };
-  openCapsule = () => this.setState({ stage: "room", room: "capsule" });
-  pickStar = () => { if (navigator.vibrate) navigator.vibrate(24); this.setState({ starPicked: true }); };
-  collect = () => this.setState(s => ({ collected: Object.assign({}, s.collected, { ticket: true }) }));
-  seal = () => { if (navigator.vibrate) navigator.vibrate([30, 30, 90]); this.setState({ stage: "final" }); };
-  flip = () => this.setState(s => ({ flipped: !s.flipped }));
-
-  renderVals() {
-    const d = this.data();
-    const st = this.state;
-    const visitedCount = ROOMS.filter(r => st.visited[r.id]).length;
-    const allDone = visitedCount === ROOMS.length;
-    const room = ROOMS.find(r => r.id === st.room);
-    const isCapsuleRoom = st.room === "capsule";
-    const inverted = st.room === "world";
-    const pop = st.pop.toLocaleString("en-US");
-
-    const values = {
-      music: d.song.toUpperCase() + " — " + d.artist.toUpperCase(),
-      sky: d.moon + " " + d.moonPct,
-      cinema: d.movie.toUpperCase(),
-      world: pop + " ALIVE",
-      press: d.papers.length + " EDITIONS HELD",
-      object: d.objects.length + " ARTEFACTS"
-    };
-
-    const factRows = [
-      { k: "DATE", v: d.date }, { k: "TIME", v: d.time + " LOCAL" }, { k: "LOCATION", v: d.place },
-      { k: "DAY", v: d.day }, { k: "SEASON", v: d.season }, { k: "MOON", v: d.moon },
-      { k: "ILLUMINATION", v: d.moonPct }, { k: "POPULATION", v: pop }
-    ].map((r, i) => Object.assign(r, { delay: 0.35 + i * 0.18 }));
-
-    const roomRows = ROOMS.map((r, i) => {
-      const done = !!st.visited[r.id];
-      return {
-        k: r.key, v: done ? values[r.id] : "— UNDISCOVERED", mark: done ? "✓" : "›",
-        keyColor: done ? "rgba(242,237,231,0.5)" : "#F2EDE7",
-        valColor: done ? "#F2EDE7" : "rgba(242,237,231,0.28)",
-        delay: 2.1 + i * 0.16, open: this.open(r.id)
-      };
-    });
-
-    const artifacts = [
-      { id: "receipt", n: "Birth receipt", s: "THERMAL PRINT · " + d.date, always: true },
-      { id: "ticket", n: "Cinema ticket", s: d.movie.toUpperCase() + " · ROW " + d.row, dep: "cinema" },
-      { id: "sky", n: "Sky poster", s: d.skyCoord + " · " + d.time, dep: "sky" },
-      { id: "vinyl", n: "Record sleeve", s: d.song.toUpperCase(), dep: "music" },
-      { id: "paper", n: "Front page", s: "THE NEW YORK TIMES", dep: "press" },
-      { id: "stamp", n: "Archive stamp", s: "RECORD CLOSED", dep: null, sealed: true }
-    ].map(a => {
-      const held = a.always || (a.dep && st.visited[a.dep]) || (a.sealed && allDone);
-      return { n: a.n, s: a.s, tag: held ? "HELD" : "LOCKED", ink: held ? "#F2EDE7" : "rgba(242,237,231,0.3)", tagColor: held ? "#FF41C9" : "rgba(242,237,231,0.25)" };
-    });
-    const capsuleCount = String(artifacts.filter(a => a.tag === "HELD").length).padStart(2, "0") + "/06";
-
-    const stars = [];
-    let seed = 7;
-    for (let i = 0; i < 84; i++) {
-      seed = (seed * 9301 + 49297) % 233280;
-      const a = seed / 233280;
-      seed = (seed * 9301 + 49297) % 233280;
-      const b = seed / 233280;
-      stars.push({ x: (a * 100).toFixed(2), y: (b * 100).toFixed(2), r: a > 0.9 ? 2.4 : a > 0.6 ? 1.6 : 1, t: (2.5 + b * 4).toFixed(1) });
-    }
-    const wave = [];
-    for (let i = 0; i < 44; i++) {
-      const h = 18 + Math.abs(Math.sin(i * 0.7)) * 60 + (i % 3) * 6;
-      wave.push({ h: h.toFixed(0), d: (0.5 + i * 0.02).toFixed(2) });
-    }
-
-    const finalRows = factRows.map(r => ({ k: r.k, v: r.v }))
-      .concat(ROOMS.map(r => ({ k: r.key, v: values[r.id] })))
-      .concat([{ k: "STATUS", v: "ARRIVED" }]);
-
-    const now = new Date();
-    const minuteHit = (st.stage === "receipt" || st.stage === "room") && now.getHours() === 4 && now.getMinutes() === 12;
-
-    return {
-      d, stars, wave, artifacts, capsuleCount, factRows, roomRows, finalRows, allDone,
-      isGate: st.stage === "gate", isSearch: st.stage === "search", isReceipt: st.stage === "receipt",
-      inRoom: st.stage === "room", isFinal: st.stage === "final", minuteHit,
-      holdRemain: 100 - st.hold, searchLog: st.searchLog, scrubDate: st.scrubDate || "··· ··· ····",
-      scrubLabel: st.scrubLabel, scrubBlur: st.scrubBlur.toFixed(1),
-      year: d.year, recordNo: "04,182",
-      statusText: allDone ? "ARRIVED" : "INCOMPLETE",
-      statusColor: allDone ? "#FF41C9" : "rgba(242,237,231,0.6)",
-      progressLine: visitedCount + " OF " + ROOMS.length + " RECORDS RETRIEVED",
-      hintLine: allDone ? "Nothing left undiscovered." : "Six lines are still blank. Open one.",
-      roomTitle: isCapsuleRoom ? "Capsule" : room ? room.title : "",
-      roomLine: isCapsuleRoom ? "Everything the archive has issued to you." : room ? room.line : "",
-      roomIndexLabel: isCapsuleRoom ? "Time capsule" : room ? "Room " + (ROOMS.indexOf(room) + 1) + " / " + ROOMS.length : "",
-      roomBg: inverted ? "#F2EDE7" : "#000",
-      roomInk: inverted ? "#000" : "#F2EDE7",
-      roomSub: inverted ? "rgba(0,0,0,0.62)" : "rgba(242,237,231,0.62)",
-      roomDim: inverted ? "rgba(0,0,0,0.4)" : "rgba(242,237,231,0.4)",
-      isMusic: st.room === "music", isSky: st.room === "sky", isCinema: st.room === "cinema",
-      isWorld: st.room === "world", isPress: st.room === "press", isObject: st.room === "object",
-      isCapsule: isCapsuleRoom,
-      starPicked: st.starPicked, starUnpicked: !st.starPicked,
-      starSentence: "This light left " + d.starName + " " + (36 - this.ageYears() > 0 ? "before you existed" : "the year you arrived") + ". It reached Earth the night you did.",
-      collectLabel: st.collected.ticket ? "✓ Ticket in your capsule" : "Keep this ticket",
-      capsuleLine: allDone ? "Six of six. The record can be closed." : "Artefacts unlock as you retrieve each record.",
-      showDock: st.stage === "receipt" || (st.stage === "room" && !isCapsuleRoom),
-      openCapsule: this.openCapsule, tear: this.tear, seal: this.seal, flip: this.flip,
-      pickStar: this.pickStar, collect: this.collect, holdStart: this.holdStart, holdEnd: this.holdEnd,
-      flipped: st.flipped,
-      archivistNote: "Nobody kept a record of the weather that morning in your street. So the archive kept you instead.",
-      sinceLine: "SINCE YOU: +" + (st.pop - 5283755345 + 2847301556).toLocaleString("en-US") + " ARRIVALS"
-    };
-  }
-}
-</script>
+    const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')}),{threshold:.15});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+    document.getElementById('saveReceipt').addEventListener('click',()=>window.print());
+    document.getElementById('replay').addEventListener('click',()=>{ window.scrollTo({top:0,behavior:'instant'}); document.body.classList.add('locked'); setProgress(0); opening.classList.remove('hidden'); });
+  </script>
 </body>
 </html>
